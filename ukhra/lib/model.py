@@ -133,20 +133,40 @@ class Page(BASE):
 class Tag(BASE):
     'Tags for each page'
     __tablename__ = 'tag'
+
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String(255), nullable=False, unique=True)
+    page_id = sa.Column(
+        sa.Integer, sa.ForeignKey('page.id'), nullable=False)
 
     def __repr__(self):
         ''' Return a string representation of the object. '''
         return u'<Tag(%s - %s)>' % (self.id, self.name)
+
+
+class Revision(BASE):
+    'Each revision of the pages.'
+    __tablename__ = 'revision'
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    page_id = sa.Column(
+        sa.Integer, sa.ForeignKey('page.id'), nullable=False)
+    revision_number = sa.Column(sa.Integer, nullable=False)
+    title = sa.Column(sa.String(255), nullable=False)
+    text = sa.Column(sa.TEXT, nullable=True)
+
+    def __repr__(self):
+        ''' Return a string representation of the object. '''
+        return u'<Revision(%s - Page:%s - %s)>' % (self.id, self.page_id, self.revision_number)
+
 
 class Comments(BASE):
     "Comments on bugs."
     __tablename__ = 'comment'
 
     id = sa.Column(sa.Integer, primary_key=True)
-    bug_id = sa.Column(
-        sa.Integer, sa.ForeignKey('bug.id'), nullable=False)
+    page_id = sa.Column(
+        sa.Integer, sa.ForeignKey('page.id'), nullable=False)
     commenter = sa.Column(
         sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)
     mesg = sa.Column(sa.TEXT, nullable=False)
