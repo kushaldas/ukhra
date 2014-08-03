@@ -116,13 +116,16 @@ class Page(BASE):
     __tablename__ = 'page'
 
     id = sa.Column(sa.Integer, primary_key=True)
-    title = sa.Column(sa.String(255), nullable=False, unique=True)
-    text = sa.Column(sa.TEXT, nullable=True)
+    path = sa.Column(sa.String(255), nullable=False, unique=True)
+    title = sa.Column(sa.String(255), nullable=False)
+    data = sa.Column(sa.TEXT, nullable=True)
     html = sa.Column(sa.TEXT, nullable=True)
     created = sa.Column(sa.DateTime, nullable=False)
     updated = sa.Column(sa.DateTime, nullable=False)
     pagetype = sa.Column(sa.String(50), nullable=False)
     version = sa.Column(sa.INTEGER, nullable=False)
+    writer = sa.Column(
+        sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)
     tags = sa.orm.relationship("Tag", backref="page")
 
     def __repr__(self):
@@ -153,7 +156,7 @@ class Revision(BASE):
         sa.Integer, sa.ForeignKey('page.id'), nullable=False)
     revision_number = sa.Column(sa.Integer, nullable=False)
     title = sa.Column(sa.String(255), nullable=False)
-    text = sa.Column(sa.TEXT, nullable=True)
+    data = sa.Column(sa.TEXT, nullable=True)
 
     def __repr__(self):
         ''' Return a string representation of the object. '''
