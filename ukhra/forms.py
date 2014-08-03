@@ -106,3 +106,10 @@ class NewUserForm(wtf.Form):
         'Confirm password  <span class="error">*</span>',
         [wtforms.validators.Required(), same_password]
     )
+
+
+class NewPageForm(wtf.Form):
+    'Form to add a new page.'
+    title = wtforms.StringField(validators=[wtforms.validators.DataRequired(),])
+    rawtext = wtforms.TextAreaField(validators=[wtforms.validators.optional(),])
+    tags = wtforms.StringField(validators=[wtforms.validators.optional(),])
