@@ -138,6 +138,43 @@ def id_generator(size=15, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 
+def find_page(path):
+    'Finds the page from the given path'
+    data = redis.get('page:%s' % path)
+    if data:
+        return json.loads(data)
+
+
+def save_page(session, form, path, user_id):
+    '''Saves the page first in db and then in redis.
+
+    :param session: database connection object
+    :param form: wtform object
+    :param path: Path of the page
+    :return: Boolean for success or failure.
+    '''
+    page = model.Page(path=path,pagetype='published', version=0)
+    if form.title:
+        page.title = form.title.data
+    if form.rawtext:
+        page.rawtext = form.rawtext.data
+    now = datetime.now()
+    page.created = now
+    page.updated = now
+    page.writer = user_id
+    try:
+        session.add(page)
+        session.commit()
+    except:
+        return False
+    # We have it in database
+    # now let us fill in the redis.
+    rpage = {'title': page.title, 'rawtext':page.rawtext, 'html': page.rawtext, 'page_id': page.id,
+            'writer': user_id,}
+    redis.set('page:%s' % path, json.dumps(rpage))
+    return True
+
+
 
 
 
