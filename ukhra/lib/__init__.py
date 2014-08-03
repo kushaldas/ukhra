@@ -46,6 +46,7 @@ from werkzeug.utils import secure_filename
 from ukhra.lib import model
 from ukhra.lib import notifications
 from ukhra import default_config
+import markdown
 
 
 
@@ -144,6 +145,15 @@ def find_page(path):
     if data:
         return json.loads(data)
 
+def load_all(session):
+    'Loads all pages to the redis.'
+    query = session.query(model.Page)
+    for page in query:
+        rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
+            'writer': page.writer,}
+        redis.set('page:%s' % page.path, json.dumps(rpage))
+    print "All pages loaded in redis."
+
 
 def save_page(session, form, path, user_id):
     '''Saves the page first in db and then in redis.
@@ -153,11 +163,15 @@ def save_page(session, form, path, user_id):
     :param path: Path of the page
     :return: Boolean for success or failure.
     '''
+    html = u''
     page = model.Page(path=path,pagetype='published', version=0)
     if form.title:
         page.title = form.title.data
     if form.rawtext:
         page.rawtext = form.rawtext.data
+        html = markdown.markdown(form.rawtext.data)
+        page.html = html
+
     now = datetime.now()
     page.created = now
     page.updated = now
@@ -169,7 +183,7 @@ def save_page(session, form, path, user_id):
         return False
     # We have it in database
     # now let us fill in the redis.
-    rpage = {'title': page.title, 'rawtext':page.rawtext, 'html': page.rawtext, 'page_id': page.id,
+    rpage = {'title': page.title, 'rawtext':page.rawtext, 'html': html, 'page_id': page.id,
             'writer': user_id,}
     redis.set('page:%s' % path, json.dumps(rpage))
     return True

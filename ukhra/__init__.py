@@ -136,9 +136,9 @@ def index():
         'index.html',
     )
 
-@APP.route('/page/<path:path>', methods=['GET', 'POST'])
+@APP.route('/page/<path:path>', methods=['POST','GET'])
 @login_required
-def pages(path):
+def newpages(path):
     'Displays a particular page or opens the editor for a new page.'
     form = forms.NewPageForm()
     if form.validate_on_submit():
@@ -147,7 +147,6 @@ def pages(path):
         if result:
             return flask.redirect(flask.url_for('pages', path=path))
     else:
-        print 'Path: ', path
         page = mmlib.find_page(path)
         if not page:
             # We should showcase the editor here.
@@ -157,8 +156,25 @@ def pages(path):
                         path=path
                     )
         else:
-            return "Found the page."
+            return flask.render_template(
+                        'viewpage.html',
+                        page=page
+                    )
 
+@APP.route('/page/<path:path>')
+def pages(path):
+    'Displays a particular page or opens the editor for a new page.'
+    print 'Path: ', path
+    page = mmlib.find_page(path)
+    if not page:
+        # We should showcase the editor here.
+        return flask.redirect(flask.url_for('newpages', path=path))
+    else:
+        print page
+        return flask.render_template(
+            'viewpage.html',
+            page=page
+        )
 
 
 
