@@ -43,7 +43,7 @@ from sqlalchemy.sql.expression import Executable, ClauseElement
 
 BASE = declarative_base()
 
-ERROR_LOG = logging.getLogger('mirrormanager2.lib.model')
+ERROR_LOG = logging.getLogger('ukhra.lib.model')
 
 # # Apparently some of our methods have too few public methods
 # pylint: disable=R0903
@@ -111,86 +111,34 @@ def drop_tables(db_url, engine):  # pragma: no cover
     BASE.metadata.drop_all(engine)
 
 
-class Product(BASE):
-    "The primary product"
-    __tablename__ = 'product'
+class Page(BASE):
+    "Each page in the system"
+    __tablename__ = 'page'
 
     id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String(50), nullable=False, unique=True)
-    description = sa.Column(sa.String(255), nullable=False)
-
-    components = sa.orm.relationship("Component", backref="product")
-    versions = sa.orm.relationship("Version", backref="product")
+    title = sa.Column(sa.String(255), nullable=False, unique=True)
+    text = sa.Column(sa.TEXT, nullable=True)
+    html = sa.Column(sa.TEXT, nullable=True)
+    created = sa.Column(sa.DateTime, nullable=False)
+    updated = sa.Column(sa.DateTime, nullable=False)
+    pagetype = sa.Column(sa.String(50), nullable=False)
+    version = sa.Column(sa.INTEGER, nullable=False)
+    tags = sa.orm.relationship("Tag", backref="page")
 
     def __repr__(self):
         ''' Return a string representation of the object. '''
-        return u'<Product(%s - %s)>' % (self.id, self.name)
+        return u'<Page(%s - %s)>' % (self.id, self.title)
 
-class Version(BASE):
-    "Version of products"
-    __tablename__ = 'version'
+
+class Tag(BASE):
+    'Tags for each page'
+    __tablename__ = 'tag'
     id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String(50), nullable=False, unique=True)
-    active = sa.Column(sa.Boolean, nullable=False)
-    product_id = sa.Column(
-        sa.Integer, sa.ForeignKey('product.id'), nullable=False)
+    name = sa.Column(sa.String(255), nullable=False, unique=True)
 
     def __repr__(self):
         ''' Return a string representation of the object. '''
-        return u'<Version(%s - %s - Product %s)>' % (self.id, self.name, self.product_id)
-
-
-class Component(BASE):
-    "Components for each product."
-    __tablename__ = 'component'
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String(50), nullable=False, unique=True)
-    description = sa.Column(sa.TEXT, nullable=True)
-    product_id = sa.Column(
-        sa.Integer, sa.ForeignKey('product.id'), nullable=False)
-    owner = sa.Column(sa.String(500))
-    qa = sa.Column(sa.String(500))
-    cc = sa.Column(sa.String(500))
-
-    def __repr__(self):
-        ''' Return a string representation of the object. '''
-        return u'<Component(%s - %s)>' % (self.id, self.name)
-
-
-class Bugs(BASE):
-    "Actual bug we are filing."
-    __tablename__ = 'bug'
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    status = sa.Column(sa.String(50), nullable=False)
-    version = sa.Column(sa.String(50), nullable=False)
-    severity = sa.Column(sa.String(50), nullable=True)
-    hardware = sa.Column(sa.String(50), nullable=True)
-    priority = sa.Column(sa.String(50), nullable=True)
-    whiteboard = sa.Column(sa.String(50), nullable=True)
-    fixedinver = sa.Column(sa.String(50), nullable=True)
-    depends_on = sa.Column(sa.TEXT, nullable=True)
-    blocks_on = sa.Column(sa.TEXT, nullable=True)
-    docs = sa.Column(sa.TEXT, nullable=True)
-
-    cc = sa.Column(sa.TEXT, nullable=True)
-    summary = sa.Column(sa.String(500), nullable=False)
-    description = sa.Column(sa.TEXT, nullable=False)
-    reported = sa.Column(sa.DateTime, nullable=False)
-    reporter = sa.Column(
-        sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)
-    component_id = sa.Column(
-        sa.Integer, sa.ForeignKey('component.id'), nullable=False)
-    assigned_to = sa.Column(sa.String(500), nullable=True)
-    comments = sa.orm.relationship("Comments", backref="bug")
-    product_id = sa.Column(
-        sa.Integer, sa.ForeignKey('product.id'), nullable=False)
-
-    def __repr__(self):
-        ''' Return a string representation of the object. '''
-        return u'<Bug(%s - %s)>' % (self.id, self.status)
-
+        return u'<Tag(%s - %s)>' % (self.id, self.name)
 
 class Comments(BASE):
     "Comments on bugs."
@@ -209,8 +157,8 @@ class Uploads(BASE):
     'Any file uploaded to the bugs'
     __tablename__ = 'uploads'
     id = sa.Column(sa.Integer, primary_key=True)
-    bug_id = sa.Column(
-        sa.Integer, sa.ForeignKey('bug.id'), nullable=False)
+    page_id = sa.Column(
+        sa.Integer, sa.ForeignKey('page.id'), nullable=False)
     uploader = sa.Column(
         sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)
     path = sa.Column(sa.String(500), nullable=False)
