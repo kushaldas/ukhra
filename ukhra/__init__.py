@@ -136,6 +136,7 @@ def index():
         'index.html',
     )
 
+
 @APP.route('/page/<path:path>', methods=['POST','GET'])
 @login_required
 def newpages(path):
@@ -153,13 +154,43 @@ def newpages(path):
             return flask.render_template(
                         'newpage.html',
                         form=form,
-                        path=path
+                        path=path,
+                        page=page
                     )
         else:
             return flask.render_template(
                         'viewpage.html',
                         page=page
                     )
+
+
+@APP.route('/page/<path:path>/edit', methods=['POST','GET'])
+@login_required
+def editpages(path):
+    'Displays a particular page or opens the editor for a new page.'
+    form = forms.NewPageForm()
+    if form.validate_on_submit():
+        # Now we have proper data, let us save the form.
+        result = mmlib.update_page(SESSION, form, path, flask.g.fas_user.id)
+        if result:
+            return flask.redirect(flask.url_for('pages', path=path))
+    else:
+        page = mmlib.find_page(path)
+        if not page:
+            # We should showcase the editor here.
+            return flask.render_template(
+                        'newpage.html',
+                        form=form,
+                        path=path
+                    )
+        else:
+            return flask.render_template(
+                        'newpage.html',
+                        page=page,
+                        form=form,
+                        path=path
+                    )
+
 
 @APP.route('/page/<path:path>')
 def pages(path):

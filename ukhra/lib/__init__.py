@@ -189,6 +189,18 @@ def save_page(session, form, path, user_id):
     return True
 
 
+def update_page(session, form, path, user_id):
+    '''Updates any given page.
+
+    :param session: Database connection object.
+    :param form: wtform object
+    :param path: Path of the page
+    :param user_id: ID of the user who is updating the form.
+    :return: Boolean for success or failure.
+    '''
+    # TODO: Update the bug in db.
+    # TODO: Then update the redis.
+    return True
 
 
 
