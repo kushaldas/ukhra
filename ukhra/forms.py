@@ -114,4 +114,5 @@ class NewPageForm(wtf.Form):
     rawtext = wtforms.TextAreaField(validators=[wtforms.validators.optional(),])
     tags = wtforms.StringField(validators=[wtforms.validators.optional(),])
     page_id = wtforms.StringField(validators=[wtforms.validators.optional(),])
+    why = wtforms.StringField(validators=[wtforms.validators.optional(),])
 

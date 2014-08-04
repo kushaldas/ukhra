@@ -159,6 +159,7 @@ class Revision(BASE):
     title = sa.Column(sa.String(255), nullable=False)
     rawtext = sa.Column(sa.TEXT, nullable=True)
     created = sa.Column(sa.DateTime, nullable=False)
+    why = sa.Column(sa.String(255), nullable=True)
     writer = sa.Column(
         sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)
 
