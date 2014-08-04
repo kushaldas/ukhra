@@ -112,6 +112,21 @@ def get_user_by_token(session, token):
     return query.first()
 
 
+def get_user_by_losttoken(session, token):
+    ''' Return a specified User via its token.
+
+    :arg session: the session with which to connect to the database.
+
+    '''
+    query = session.query(
+        model.User
+    ).filter(
+        model.User.losttoken == token
+    )
+
+    return query.first()
+
+
 def get_session_by_visitkey(session, sessionid):
     ''' Return a specified VisitUser via its session identifier (visit_key).
 
@@ -152,6 +167,7 @@ def load_all(session):
         rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
             'writer': page.writer,}
         redis.set('page:%s' % page.path, json.dumps(rpage))
+        redis.lpush('latestpages', page.path)
     print "All pages loaded in redis."
 
 

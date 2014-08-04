@@ -117,6 +117,7 @@ class Page(BASE):
 
     id = sa.Column(sa.Integer, primary_key=True)
     path = sa.Column(sa.String(255), nullable=False, unique=True)
+    format = sa.Column(sa.INTEGER, nullable=True)
     title = sa.Column(sa.String(255), nullable=False)
     data = sa.Column(sa.TEXT, nullable=True)
     html = sa.Column(sa.TEXT, nullable=True)
@@ -269,6 +270,8 @@ class User(BASE):
     display_name = sa.Column(sa.String(255), nullable=True)
     password = sa.Column(sa.Text, nullable=True)
     token = sa.Column(sa.String(50), nullable=True)
+    losttoken = sa.Column(sa.String(50), nullable=True)
+
     created = sa.Column(
         sa.DateTime,
         nullable=False,

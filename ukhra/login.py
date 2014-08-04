@@ -16,7 +16,7 @@
 #
 
 '''
-ukhra local login flask controller.
+Ukhra local login flask controller.
 '''
 
 import hashlib
@@ -33,7 +33,6 @@ from sqlalchemy.exc import SQLAlchemyError
 
 import ukhra.forms
 import ukhra.lib
-#import ukhra.lib.notifications
 from ukhra import APP, SESSION
 from ukhra.lib import model
 
@@ -178,7 +177,7 @@ def lost_password():
         if not user_obj:
             flask.flash('Username invalid.', 'error')
             return flask.redirect(flask.url_for('auth_login'))
-        elif user_obj.token:
+        elif user_obj.losttoken:
             flask.flash(
                 'Invalid user, did you confirm the creation with the url '
                 'provided by email? Or did you already ask for a password '
@@ -186,7 +185,7 @@ def lost_password():
             return flask.redirect(flask.url_for('auth_login'))
 
         token = ukhra.lib.id_generator(40)
-        user_obj.token = token
+        user_obj.losttoken = token
         SESSION.add(user_obj)
 
         try:
@@ -216,11 +215,11 @@ def reset_password(token):
     """
     form = ukhra.forms.ResetPasswordForm()
 
-    user_obj = ukhra.lib.get_user_by_token(SESSION, token)
+    user_obj = ukhra.lib.get_user_by_losttoken(SESSION, token)
     if not user_obj:
         flask.flash('No user associated with this token.', 'error')
         return flask.redirect(flask.url_for('auth_login'))
-    elif not user_obj.token:
+    elif not user_obj.losttoken:
         flask.flash(
             'Invalid user, this user never asked for a password change',
             'error')
@@ -231,7 +230,7 @@ def reset_password(token):
         password = '%s%s' % (
             form.password.data, APP.config.get('PASSWORD_SEED', None))
         user_obj.password = hashlib.sha512(password).hexdigest()
-        user_obj.token = None
+        user_obj.losttoken = None
         SESSION.add(user_obj)
 
         try:
@@ -285,7 +284,7 @@ Your Bugspad2 admin.
 
     ukhra.lib.notifications.email_publish(
         to_email=user.email_address,
-        subject='[Ukhra] Confirm your user account',
+        subject='[Bugspad2] Confirm your user account',
         message=message,
         from_email=APP.config.get('EMAIL_FROM', 'nobody@fedoraproject.org'),
         smtp_server=APP.config.get('SMTP_SERVER', 'localhost')
