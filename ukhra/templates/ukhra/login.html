@@ -4,15 +4,13 @@
 {%block tag %}home{% endblock %}
 
 {% block content %}
-<section>
-  <div class="container">
-    <h1>Login to Bugspad</h1>
-    <form class="form-inline border-radius" action="{{ url_for('do_login') }}" method="POST">       
-      <div class="form-item">
-        <label for="username">username:</label>
+   <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <form role="form" action="{{ url_for('do_login') }}" method="POST">       
+      <div class="form-group">
+        <label for="username">Username:</label>
         <input type="text" name="username" placeholder="username" />
       </div>                 
-      <div class="form-item">
+      <div class="form-group">
         <label for="password">Password:</label>
         <input type="password" name="password" />
       </div>
@@ -27,6 +25,5 @@
       <a href="{{ url_for('lost_password') }}">Forgot your password?</a>
     </p>
 
-  </div> <!-- end container -->
-</section>
+  </div>
 {% endblock %}
