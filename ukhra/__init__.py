@@ -166,7 +166,10 @@ def newpages(path):
         # Now we have proper data, let us save the form.
         result = mmlib.save_page(SESSION, form, path, flask.g.fas_user.id)
         if result:
+            print "page saved."
             return flask.redirect(flask.url_for('pages', path=path))
+        else:
+            print "It failed."
     else:
         page = mmlib.find_page(path)
         if not page:
@@ -189,6 +192,17 @@ def newpages(path):
 def editpages(path):
     'Displays a particular page or opens the editor for a new page.'
     form = forms.NewPageForm()
+    if request.method == 'GET':
+        page = mmlib.find_page(path)
+        if page:
+            # We should showcase the editor here.
+            return flask.render_template(
+                        'newpage.html',
+                        form=form,
+                        path=path,
+                        edit='True',
+                        page=page
+                    )
     if form.validate_on_submit():
         # Now we have proper data, let us save the form.
         result = mmlib.update_page(SESSION, form, path, flask.g.fas_user.id)

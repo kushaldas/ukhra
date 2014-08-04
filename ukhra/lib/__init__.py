@@ -195,7 +195,9 @@ def save_page(session, form, path, user_id):
     try:
         session.add(page)
         session.commit()
-    except:
+    except Exception, err:
+        print err
+        print "It failed here."
         return False
     # We have it in database
     # now let us fill in the redis.
@@ -229,8 +231,10 @@ def update_page(session, form, path, user_id):
     # First let us update the page.
     page = session.query(model.Page).filter(model.Page.id==form.page_id.data).first()
     if not page:
+        print "page missing."
         return False
-    if page.title == form.title.data or page.data == form.rawtext.data: # No chance in the page.
+    if page.title == form.title.data and page.data == form.rawtext.data: # No chance in the page.
+        print "No change in data.", page.data, form.rawtext.data
         return True
     page.title = form.title.data
     page.data = form.rawtext.data
@@ -240,7 +244,8 @@ def update_page(session, form, path, user_id):
     page.html = html
     try:
         session.commit()
-    except:
+    except Exception, err:
+        print err
         return False
     update_page_redis(page, path, user_id)
     rev = model.Revision(page_id=form.page_id.data)
