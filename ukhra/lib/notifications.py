@@ -48,4 +48,4 @@ def email_publish(
     smtp = smtplib.SMTP(smtp_server)
     smtp.sendmail(from_email, [to_email], msg.as_string())
     smtp.quit()
-    logging.log('New email: ' + to_email)
+    logging.log('INFO', 'New email: ' + to_email)
