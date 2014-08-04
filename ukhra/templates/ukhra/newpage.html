@@ -1,0 +1,28 @@
+{% extends "master.html" %}
+
+{% block title %}Create new page{% endblock %}
+{%block tag %}home{% endblock %}
+{%block header%}{% endblock %}
+
+{% block content %}
+
+                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            	    <form role="form" action="{% if edit %}{{ url_for('editpages', path=path) }}{% else %}{{ url_for('newpages', path=path) }}{% endif %}" method="POST"> 
+                        <input id="page_id" name="page_id" type=hidden value={{ page['page_id'] }}>
+            	    	<div class="form-group">
+            	    		<label for="title">Tiltle</label>
+            	    		<input id="title" name="title" type="text" value="{{ page['title'] }}" class="form-control">
+            	    	</div>
+              	    	<div class="form-group">
+            	    		<textarea id="rawtext" name="rawtext" class="form-control" rows="30">{{ page['rawtext'] }}</textarea>
+            	    	</div>
+            	    	<div class="form-group">
+            	    		<label for="tags">Tags</label>
+            	    		<input id="tags" name="tags" type="text" value="" class="form-control">
+            	    	</div>
+            	    	{{ form.csrf_token }}
+            	    	 <p><button type="submit" class="btn btn-success btn-lg">Submit</button><a class="btn btn-danger btn-lg" href="/" role="button">Cancel</a></p>
+            	    </form>
+                </div> <!-- End of main content -->
+
+{% endblock %}
