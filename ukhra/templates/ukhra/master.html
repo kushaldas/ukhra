@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{% endblock %} | Ukhra</title>
+    <title>{% block title %}{% endblock %} | dgplug</title>
 
     <!-- Bootstrap -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
@@ -29,14 +29,14 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="/">Ukhra</a>
+                    <a class="navbar-brand" id="dg-navbar" href="/">dgplug</a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">Dashboard</a></li>
-                        <li><a href="#">Settings</a></li>
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Help</a></li>
+                        <li><a href="http://lists.dgplug.org/listinfo.cgi/users-dgplug.org">Mailing list</a></li>
+                        <li><a href="http://fedoraproject.org/">Fedora project</a></li>
+                        <li><a href="http://dgplug.org/ircstat/">IRC stats</a></li>
+                        <li><a href="http://planet.dgplug.org/">Planet</a></li>
                     </ul>
                 </div>
             </div>
@@ -60,22 +60,10 @@
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
                 <ul class="nav nav-sidebar">
-                    <li>Welcome             {% if g.fas_user %} {{ g.fas_user.username }}{% endif %}</li>
-                    <li><a href="#">Reports</a></li>
+                    {% if g.fas_user %}<li>Welcome {{ g.fas_user.username }}</li>{% endif %}
+                    <li>{% if g.fas_user %}<a href="url_for('auth_logout')">Logout</a>{% else %}<a href="{{ url_for('auth_login') }}">Login</a>{% endif %}</li>
                     <li><a href="#">Analytics</a></li>
                     <li><a href="#">Export</a></li>
-                </ul>
-                <ul class="nav nav-sidebar">
-                    <li><a href="">Nav item</a></li>
-                    <li><a href="">Nav item again</a></li>
-                    <li><a href="">One more nav</a></li>
-                    <li><a href="">Another nav item</a></li>
-                    <li><a href="">More navigation</a></li>
-                </ul>
-                <ul class="nav nav-sidebar">
-                    <li><a href="">Nav item again</a></li>
-                    <li><a href="">One more nav</a></li>
-                    <li><a href="">Another nav item</a></li>
                 </ul>
             </div>
             {% block content %}{% endblock %}

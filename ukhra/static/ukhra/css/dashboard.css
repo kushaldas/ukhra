@@ -23,6 +23,8 @@ body {
  */
 .navbar-fixed-top {
   border: 0;
+  background: #edf5fa url(../body.png) repeat-x 50% 0;
+
 }
 
 /*
@@ -102,4 +104,12 @@ body {
 .placeholder img {
   display: inline-block;
   border-radius: 50%;
+}
+
+#dg-navbar {
+  color: #fff;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+  color: #fff;
 }
