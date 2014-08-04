@@ -208,7 +208,7 @@ def update_page_redis(page, path, user_id):
     :param page: model.Page object
     :return: None
     '''
-    rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
+    rpage = {'title': page.title, 'rawtext':page.rawtext.data, 'html': page.html, 'page_id': page.id,
             'writer': user_id,}
     redis.set('page:%s' % path, json.dumps(rpage))
 
