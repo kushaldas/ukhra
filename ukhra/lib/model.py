@@ -156,7 +156,10 @@ class Revision(BASE):
         sa.Integer, sa.ForeignKey('page.id'), nullable=False)
     revision_number = sa.Column(sa.Integer, nullable=False)
     title = sa.Column(sa.String(255), nullable=False)
-    data = sa.Column(sa.TEXT, nullable=True)
+    rawtext = sa.Column(sa.TEXT, nullable=True)
+    created = sa.Column(sa.DateTime, nullable=False)
+    writer = sa.Column(
+        sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)
 
     def __repr__(self):
         ''' Return a string representation of the object. '''
