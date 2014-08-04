@@ -148,7 +148,6 @@ def pages(path):
         # We should showcase the editor here.
         return flask.redirect(flask.url_for('newpages', path=path))
     else:
-        print page
         return flask.render_template(
             'viewpage.html',
             page=page,
@@ -166,10 +165,9 @@ def newpages(path):
         # Now we have proper data, let us save the form.
         result = mmlib.save_page(SESSION, form, path, flask.g.fas_user.id)
         if result:
-            print "page saved."
             return flask.redirect(flask.url_for('pages', path=path))
         else:
-            print "It failed."
+            return flask.redirect(flask.url_for('index'))
     else:
         page = mmlib.find_page(path)
         if not page:
@@ -207,10 +205,8 @@ def editpages(path):
         # Now we have proper data, let us save the form.
         result = mmlib.update_page(SESSION, form, path, flask.g.fas_user.id)
         if result:
-            print "This means update successful."
             return flask.redirect(flask.url_for('pages', path=path))
     else:
-        print "Form validation failed."
         page = mmlib.find_page(path)
         if page:
             # We should showcase the editor here.

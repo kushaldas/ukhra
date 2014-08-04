@@ -29,6 +29,7 @@ notifications we could use.
 
 import smtplib
 import warnings
+import logging
 
 from email.mime.text import MIMEText
 
@@ -47,4 +48,4 @@ def email_publish(
     smtp = smtplib.SMTP(smtp_server)
     smtp.sendmail(from_email, [to_email], msg.as_string())
     smtp.quit()
-    print msg.as_string()
+    logging.log('New email: ' + to_email)

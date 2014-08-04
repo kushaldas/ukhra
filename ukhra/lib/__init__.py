@@ -235,10 +235,8 @@ def update_page(session, form, path, user_id):
     # First let us update the page.
     page = session.query(model.Page).filter(model.Page.id==form.page_id.data).first()
     if not page:
-        print "page missing."
         return False
     if page.title == form.title.data and page.data == form.rawtext.data: # No chance in the page.
-        print "No change in data.", page.data, form.rawtext.data
         return True
     page.title = form.title.data
     page.data = form.rawtext.data
