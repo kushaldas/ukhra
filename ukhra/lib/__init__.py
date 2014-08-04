@@ -183,11 +183,18 @@ def save_page(session, form, path, user_id):
         return False
     # We have it in database
     # now let us fill in the redis.
-    rpage = {'title': page.title, 'rawtext':page.rawtext, 'html': html, 'page_id': page.id,
-            'writer': user_id,}
-    redis.set('page:%s' % path, json.dumps(rpage))
+    update_page_redis(page, path, user_id)
     return True
 
+def update_page_redis(page, path, user_id):
+    '''Updates the page in redis.
+
+    :param page: model.Page object
+    :return: None
+    '''
+    rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
+            'writer': user_id,}
+    redis.set('page:%s' % path, json.dumps(rpage))
 
 def update_page(session, form, path, user_id):
     '''Updates any given page.
@@ -200,6 +207,36 @@ def update_page(session, form, path, user_id):
     '''
     # TODO: Update the bug in db.
     # TODO: Then update the redis.
+    html = u''
+    now = datetime.now()
+
+    # First let us update the page.
+    page = session.query(model.Page).filter(model.Page.id==form.page_id.data).first()
+    if not page:
+        return False
+    page.title = form.title.data
+    page.data = form.rawtext.data
+    page.updated = now
+    page.version = page.version + 1
+    html = markdown.markdown(form.rawtext.data)
+    page.html = html
+    try:
+        session.commit()
+    except:
+        return False
+    update_page_redis(page, path, user_id)
+    rev = model.Revision(page_id=form.page_id.data)
+    rev.title = form.title.data
+    rev.rawtext = form.rawtext.data
+    rev.writer = user_id
+    rev.created = now
+    rev.revision_number = page.version
+    try:
+        session.add(rev)
+        session.commit()
+    except:
+        return False
+
     return True
 
 

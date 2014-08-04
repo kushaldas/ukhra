@@ -137,7 +137,23 @@ def index():
     )
 
 
-@APP.route('/page/<path:path>', methods=['POST','GET'])
+@APP.route('/page/<path:path>')
+def pages(path):
+    'Displays a particular page or opens the editor for a new page.'
+    print 'Path: ', path
+    page = mmlib.find_page(path)
+    if not page:
+        # We should showcase the editor here.
+        return flask.redirect(flask.url_for('newpages', path=path))
+    else:
+        print page
+        return flask.render_template(
+            'viewpage.html',
+            page=page
+        )
+
+
+@APP.route('/page/<path:path>/new', methods=['POST','GET'])
 @login_required
 def newpages(path):
     'Displays a particular page or opens the editor for a new page.'
@@ -168,44 +184,31 @@ def newpages(path):
 @login_required
 def editpages(path):
     'Displays a particular page or opens the editor for a new page.'
+    print "In edit page."
     form = forms.NewPageForm()
     if form.validate_on_submit():
         # Now we have proper data, let us save the form.
         result = mmlib.update_page(SESSION, form, path, flask.g.fas_user.id)
         if result:
+            print "This means update successful."
             return flask.redirect(flask.url_for('pages', path=path))
     else:
+        print "Form validation failed."
         page = mmlib.find_page(path)
-        if not page:
+        if page:
             # We should showcase the editor here.
             return flask.render_template(
                         'newpage.html',
                         form=form,
-                        path=path
+                        path=path,
+                        edit='True',
+                        page=page
                     )
         else:
-            return flask.render_template(
-                        'newpage.html',
-                        page=page,
-                        form=form,
-                        path=path
-                    )
+            return flask.redirect(flask.url_for('newpages', path=path))
 
 
-@APP.route('/page/<path:path>')
-def pages(path):
-    'Displays a particular page or opens the editor for a new page.'
-    print 'Path: ', path
-    page = mmlib.find_page(path)
-    if not page:
-        # We should showcase the editor here.
-        return flask.redirect(flask.url_for('newpages', path=path))
-    else:
-        print page
-        return flask.render_template(
-            'viewpage.html',
-            page=page
-        )
+
 
 
 
