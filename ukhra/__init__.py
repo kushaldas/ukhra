@@ -140,7 +140,9 @@ def index():
 @APP.route('/page/<path:path>')
 def pages(path):
     'Displays a particular page or opens the editor for a new page.'
-    print 'Path: ', path
+    edit = False
+    if is_authenticated():
+        edit = True
     page = mmlib.find_page(path)
     if not page:
         # We should showcase the editor here.
@@ -149,7 +151,9 @@ def pages(path):
         print page
         return flask.render_template(
             'viewpage.html',
-            page=page
+            page=page,
+            path=path,
+            editpage=edit
         )
 
 
@@ -184,7 +188,6 @@ def newpages(path):
 @login_required
 def editpages(path):
     'Displays a particular page or opens the editor for a new page.'
-    print "In edit page."
     form = forms.NewPageForm()
     if form.validate_on_submit():
         # Now we have proper data, let us save the form.
