@@ -60,8 +60,11 @@
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
                 <ul class="nav nav-sidebar">
-                    {% if g.fas_user %}<li>Welcome {{ g.fas_user.username }}</li>{% endif %}
-                    <li>{% if g.fas_user %}<a href="{{ url_for('auth_logout') }}">Logout</a>{% else %}<a href="{{ url_for('auth_login') }}">Login</a>{% endif %}</li>
+                    <li>Welcome {% if g.fas_user %}{{ g.fas_user.username }}</li>{% endif %}
+                    {% if g.fas_user %}<li><a href="{{ url_for('auth_logout') }}">Logout</a>{% else %}<a href="{{ url_for('auth_login') }}">Login</a></li>
+
+                    {% endif %}
+                    {% if editpage %}<li><a href="{{ url_for('editpages', path=path) }}">Edit Page</a></li> {% endif %}
                 </ul>
             </div>
             {% block content %}{% endblock %}

@@ -21,7 +21,7 @@
             	    		<input id="tags" name="tags" type="text" value="" class="form-control">
             	    	</div>
             	    	{{ form.csrf_token }}
-            	    	 <p><button type="submit" class="btn btn-success btn-lg">Submit</button><a class="btn btn-danger btn-lg" href="/" role="button">Cancel</a></p>
+            	    	 <p><button type="submit" class="btn btn-success btn-lg">Submit</button><a class="btn btn-danger btn-lg" href="{{ url_for('pages', path=path) }}" role="button">Cancel</a></p>
             	    </form>
                 </div> <!-- End of main content -->
 
