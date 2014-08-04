@@ -29,6 +29,8 @@ import hashlib
 from datetime import datetime
 from pprint import pprint
 from collections import OrderedDict
+from retask.queue import Queue
+from retask.task import Task
 
 from redis import Redis
 redis = Redis()
@@ -165,7 +167,7 @@ def load_all(session):
     query = session.query(model.Page)
     for page in query:
         rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
-            'writer': page.writer,}
+            'writer': page.writer, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': page.path}
         redis.set('page:%s' % page.path, json.dumps(rpage))
         redis.lpush('latestpages', page.path)
     print "All pages loaded in redis."
@@ -211,8 +213,10 @@ def update_page_redis(page, path, user_id):
     :return: None
     '''
     rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
-            'writer': user_id,}
+            'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path}
     redis.set('page:%s' % path, json.dumps(rpage))
+    mail_update(rpage)
+
 
 def update_page(session, form, path, user_id):
     '''Updates any given page.
@@ -289,3 +293,9 @@ def get_html(name, bug):
 def download_file(file_id):
     'Returns the filename for the given file_id.'
     return redis.hget('uploads', file_id)
+
+def mail_update(rpage):
+    'Send a message for each update.'
+    q = Queue('wikiupdate')
+    q.connect()
+    q.enqueue(Task(rpage))
