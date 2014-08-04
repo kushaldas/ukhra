@@ -31,7 +31,6 @@ import smtplib
 import warnings
 
 from email.mime.text import MIMEText
-from localconfig import user, password
 
 
 def email_publish(
@@ -45,13 +44,7 @@ def email_publish(
     msg['From'] = from_email
     msg['To'] = to_email
 
-    server = 'smtp.gmail.com'
-    port = 587
-
-    smtp = smtplib.SMTP(server, port)
-    smtp.ehlo()
-    smtp.starttls()
-    smtp.ehlo()
-    smtp.login(user, password)
+    smtp = smtplib.SMTP(smtp_server)
     smtp.sendmail(from_email, [to_email], msg.as_string())
     smtp.quit()
+    print msg.as_string()
