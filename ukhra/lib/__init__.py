@@ -184,7 +184,7 @@ def save_page(session, form, path, user_id):
     if form.title:
         page.title = form.title.data
     if form.rawtext:
-        page.rawtext = form.rawtext.data
+        page.data = form.rawtext.data
         html = markdown.markdown(form.rawtext.data)
         page.html = html
 
@@ -208,7 +208,7 @@ def update_page_redis(page, path, user_id):
     :param page: model.Page object
     :return: None
     '''
-    rpage = {'title': page.title, 'rawtext':page.rawtext.data, 'html': page.html, 'page_id': page.id,
+    rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
             'writer': user_id,}
     redis.set('page:%s' % path, json.dumps(rpage))
 
@@ -230,6 +230,8 @@ def update_page(session, form, path, user_id):
     page = session.query(model.Page).filter(model.Page.id==form.page_id.data).first()
     if not page:
         return False
+    if page.title == form.title.data or page.data == form.rawtext.data: # No chance in the page.
+        return True
     page.title = form.title.data
     page.data = form.rawtext.data
     page.updated = now
@@ -244,6 +246,7 @@ def update_page(session, form, path, user_id):
     rev = model.Revision(page_id=form.page_id.data)
     rev.title = form.title.data
     rev.rawtext = form.rawtext.data
+    rev.why = form.why.data
     rev.writer = user_id
     rev.created = now
     rev.revision_number = page.version
