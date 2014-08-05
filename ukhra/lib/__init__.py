@@ -167,7 +167,8 @@ def load_all(session):
     query = session.query(model.Page)
     for page in query:
         rpage = {'title': page.title, 'rawtext':page.data, 'html': markdown.markdown(page.data), 'page_id': page.id,
-            'writer': page.writer, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': page.path}
+            'writer': page.writer, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'),
+            'path': page.path, 'groups': page.groups}
         redis.set('page:%s' % page.path, json.dumps(rpage))
         redis.lpush('latestpages', page.path)
     print "All pages loaded in redis."
@@ -213,7 +214,7 @@ def update_page_redis(page, path, user_id):
     :return: None
     '''
     rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
-            'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path}
+            'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path, 'groups': []}
     redis.set('page:%s' % path, json.dumps(rpage))
     mail_update(rpage)
 
@@ -292,8 +293,27 @@ def download_file(file_id):
     'Returns the filename for the given file_id.'
     return redis.hget('uploads', file_id)
 
+
 def mail_update(rpage):
     'Send a message for each update.'
     q = Queue('wikiupdate')
     q.connect()
     q.enqueue(Task(rpage))
+
+
+def update_page_group(session, path, groups):
+    '''Updates page's group editing status
+
+    :param path: Page's path as string
+    :param groups: string of groups, comma separated.
+    :return: None
+    '''
+    page = session.query(model.Page).filter(model.Page.path==path).first()
+    if not page:
+        print 'Sorry no such page.'
+    page.pagetype == groups
+    session.commit()
+    gnames = [name.strip() for name in groups.split(',')]
+    rpage = json.loads(redis.get('page:%s' % path))
+    rpage['groups'] = gnames
+    redis.set('page:%s' % path, json.dumps(rpage))

@@ -148,6 +148,7 @@ def pages(path):
         # We should showcase the editor here.
         return flask.redirect(flask.url_for('newpages', path=path))
     else:
+        edit = check_group_perm(page) # For the group permission.
         return flask.render_template(
             'viewpage.html',
             page=page,
@@ -184,14 +185,31 @@ def newpages(path):
                         page=page
                     )
 
+def check_group_perm(page):
+    '''Returns True or False'''
+    pgroups = page.get('groups', [])
+    if pgroups:
+        set1 = set(pgroups)
+        set2 = set(flask.g.fas_user.groups)
+        print set1, set2
+        if not set1.intersection(set2):
+            return False
+    return True
+
 
 @APP.route('/page/<path:path>/edit', methods=['POST','GET'])
 @login_required
 def editpages(path):
     'Displays a particular page or opens the editor for a new page.'
     form = forms.NewPageForm()
+    page = mmlib.find_page(path)
+    # Now see if the user has access rights for this page groups.
+    if not check_group_perm(page):
+        return flask.render_template(
+                'noperm.html')
+
     if request.method == 'GET':
-        page = mmlib.find_page(path)
+
         if page:
             # We should showcase the editor here.
             return flask.render_template(

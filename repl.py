@@ -44,6 +44,14 @@ class REPL(Cmd):
     def do_loadall(self, line):
         mmlib.load_all(SESSION)
 
+    def do_addgroup(self, line):
+        'path and then comma separated group names (without space)'
+        line = line.strip()
+        path, groups = line.split(' ')
+        if path and groups:
+            mmlib.update_page_group(SESSION, path, groups)
+        print "Done."
+
 
 
 if __name__ == '__main__':
