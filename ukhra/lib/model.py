@@ -117,13 +117,13 @@ class Page(BASE):
 
     id = sa.Column(sa.Integer, primary_key=True)
     path = sa.Column(sa.String(255), nullable=False, unique=True)
-    format = sa.Column(sa.INTEGER, nullable=True)
+    format = sa.Column(sa.INTEGER, nullable=True) # markdown or rst
     title = sa.Column(sa.String(255), nullable=False)
     data = sa.Column(sa.TEXT, nullable=True)
     html = sa.Column(sa.TEXT, nullable=True)
     created = sa.Column(sa.DateTime, nullable=False)
     updated = sa.Column(sa.DateTime, nullable=False)
-    pagetype = sa.Column(sa.String(50), nullable=False)
+    pagetype = sa.Column(sa.String(50), nullable=True) # group types
     version = sa.Column(sa.INTEGER, nullable=False)
     writer = sa.Column(
         sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)

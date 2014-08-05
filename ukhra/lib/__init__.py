@@ -166,7 +166,7 @@ def load_all(session):
     'Loads all pages to the redis.'
     query = session.query(model.Page)
     for page in query:
-        rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
+        rpage = {'title': page.title, 'rawtext':page.data, 'html': markdown.markdown(page.data), 'page_id': page.id,
             'writer': page.writer, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': page.path}
         redis.set('page:%s' % page.path, json.dumps(rpage))
         redis.lpush('latestpages', page.path)
