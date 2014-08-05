@@ -1,0 +1,9 @@
+# Requirements for the Ukhra project.
+
+flask
+flask-wtf
+flask-admin
+wtforms
+SQLAlchemy>=0.7
+retask
+markdown
