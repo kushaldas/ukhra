@@ -141,14 +141,13 @@ def index():
 def pages(path):
     'Displays a particular page or opens the editor for a new page.'
     edit = False
-    if is_authenticated():
-        edit = True
     page = mmlib.find_page(path)
+    if is_authenticated():
+        edit = check_group_perm(page)
     if not page:
         # We should showcase the editor here.
         return flask.redirect(flask.url_for('newpages', path=path))
     else:
-        edit = check_group_perm(page) # For the group permission.
         return flask.render_template(
             'viewpage.html',
             page=page,
