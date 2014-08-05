@@ -115,4 +115,5 @@ class NewPageForm(wtf.Form):
     tags = wtforms.StringField(validators=[wtforms.validators.optional(),])
     page_id = wtforms.StringField(validators=[wtforms.validators.optional(),])
     why = wtforms.StringField(validators=[wtforms.validators.optional(),])
+    format = wtforms.RadioField(u'Format', choices=[('0', 'Markdown'), ('1', 'RST')], validators=[wtforms.validators.optional(),])
 

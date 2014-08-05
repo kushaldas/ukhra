@@ -153,6 +153,7 @@ def pages(path):
             page=page,
             path=path,
             editpage=edit
+
         )
 
 
@@ -176,7 +177,8 @@ def newpages(path):
                         'newpage.html',
                         form=form,
                         path=path,
-                        page=page
+                        page=page,
+                        mark='0'
                     )
         else:
             return flask.render_template(
@@ -231,7 +233,8 @@ def editpages(path):
                         form=form,
                         path=path,
                         edit='True',
-                        page=page
+                        page=page,
+                        mark=page.format
                     )
         else:
             return flask.redirect(flask.url_for('newpages', path=path))

@@ -49,6 +49,9 @@ from ukhra.lib import model
 from ukhra.lib import notifications
 from ukhra import default_config
 import markdown
+from fakenikola import RSTCompiler
+
+COMPILER = RSTCompiler()
 
 
 
@@ -166,12 +169,33 @@ def load_all(session):
     'Loads all pages to the redis.'
     query = session.query(model.Page)
     for page in query:
-        rpage = {'title': page.title, 'rawtext':page.data, 'html': markdown.markdown(page.data), 'page_id': page.id,
+        if not page.format:
+            format = '0'
+        else:
+            format = '1'
+        rpage = {'title': page.title, 'rawtext':page.data, 'html': compile_text(page.data, format), 'page_id': page.id,
             'writer': page.writer, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'),
             'path': page.path, 'groups': page.groups}
         redis.set('page:%s' % page.path, json.dumps(rpage))
         redis.lpush('latestpages', page.path)
     print "All pages loaded in redis."
+
+
+def compile_text(text, format='0'):
+    '''Compiles the given text to HTML
+
+    :param text: Text to be compiled.
+    :param format: '0' for markdown or '1' for rst.
+    :return: string containing the compiled HTML
+    '''
+    if format == '0':
+        return markdown.markdown(text)
+    else:
+        out, error = COMPILER.rst(text)
+        if not error:
+            return error
+        else:
+            return out
 
 
 def save_page(session, form, path, user_id):
@@ -186,9 +210,10 @@ def save_page(session, form, path, user_id):
     page = model.Page(path=path,pagetype='published', version=0)
     if form.title:
         page.title = form.title.data
+    page.format = form.format.data
     if form.rawtext:
         page.data = form.rawtext.data
-        html = markdown.markdown(form.rawtext.data)
+        html = compile_text(form.rawtext.data, page.format)
         page.html = html
 
     now = datetime.now()
@@ -213,7 +238,7 @@ def update_page_redis(page, path, user_id):
     :param page: model.Page object
     :return: None
     '''
-    rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id,
+    rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id, 'format': unicode(page.format),
             'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path, 'groups': []}
     redis.set('page:%s' % path, json.dumps(rpage))
     mail_update(rpage)
@@ -243,7 +268,8 @@ def update_page(session, form, path, user_id):
     page.data = form.rawtext.data
     page.updated = now
     page.version = page.version + 1
-    html = markdown.markdown(form.rawtext.data)
+    page.format = form.format.data
+    html = compile_text(form.rawtext.data, page.format)
     page.html = html
     try:
         session.commit()
