@@ -142,7 +142,7 @@ def pages(path):
     'Displays a particular page or opens the editor for a new page.'
     edit = False
     page = mmlib.find_page(path)
-    if is_authenticated():
+    if is_authenticated() and page:
         edit = check_group_perm(page)
     if not page:
         # We should showcase the editor here.
