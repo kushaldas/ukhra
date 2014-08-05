@@ -192,10 +192,9 @@ def compile_text(text, format='0'):
         return markdown.markdown(text)
     else:
         out, error = COMPILER.rst(text)
-        if not error:
-            return error
-        else:
-            return out
+        if not out:
+            out = text
+        return out
 
 
 def save_page(session, form, path, user_id):
@@ -224,8 +223,7 @@ def save_page(session, form, path, user_id):
         session.add(page)
         session.commit()
     except Exception, err:
-        print err
-        print "It failed here."
+        session.rollback()
         return False
     # We have it in database
     # now let us fill in the redis.
@@ -274,7 +272,7 @@ def update_page(session, form, path, user_id):
     try:
         session.commit()
     except Exception, err:
-        print err
+        session.rollback()
         return False
     update_page_redis(page, path, user_id)
     rev = model.Revision(page_id=form.page_id.data)
@@ -288,6 +286,7 @@ def update_page(session, form, path, user_id):
         session.add(rev)
         session.commit()
     except:
+        session.rollback()
         return False
 
     return True

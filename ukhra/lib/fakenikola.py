@@ -31,6 +31,7 @@ from nikola.plugin_categories import (
     SignalHandler,
 )
 
+logger = logging.getLogger(__name__)
 
 
 
@@ -92,5 +93,5 @@ class RSTCompiler(object):
                             'syntax_highlight': 'short',
                             'math_output': 'mathjax',
                             'template': '/usr/lib/python2.6/site-packages/nikola/plugins/compile/rest/template.txt',
-                        }, l_source=source)
+                        }, l_source=source, logger=logger)
         return output, error_level
