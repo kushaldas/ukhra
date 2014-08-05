@@ -5,8 +5,8 @@
 {%block tag %}home{% endblock %}
 
 {% block content %}
-<section>
-  <div class="container">
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
   <h2>New user</h2>
 
   <p>
@@ -15,24 +15,24 @@
     You will be asked to provide a valid email address.
   </p>
 
-  <form class="form-inline border-radius" action="{{ url_for('new_user') }}" method="POST"> 
-    <div class="form-item">
+  <form role="form" action="{{ url_for('new_user') }}" method="POST"> 
+    <div class="form-group">
       <label for="username">username:</label>
       {{ form.user_name }}
     </div>
-    <div class="form-item">
+    <div class="form-group">
       <label for="display_name">Display name:</label>
       {{ form.display_name }}
     </div>
-    <div class="form-item">
+    <div class="form-group">
       <label for="email_address">Email:</label>
       {{ form.email_address }}
     </div>
-    <div class="form-item">
+    <div class="form-group">
       <label for="password">Password:</label>
       {{ form.password }}
     </div>
-    <div class="form-item">
+    <div class="form-group">
       <label for="confirm_password">Confirm:</label>
       {{ form.confirm_password }}
     </div>
@@ -41,5 +41,6 @@
     {{ form.csrf_token }}
   </p>
 </form>
+</div>
 
 {% endblock %}
