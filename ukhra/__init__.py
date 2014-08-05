@@ -178,7 +178,7 @@ def newpages(path):
                         form=form,
                         path=path,
                         page=page,
-                        mark='0'
+                        mark=True
                     )
         else:
             return flask.render_template(
@@ -226,6 +226,9 @@ def editpages(path):
             return flask.redirect(flask.url_for('pages', path=path))
     else:
         page = mmlib.find_page(path)
+        mark = True
+        if page.format == u'1':
+            mark = False
         if page:
             # We should showcase the editor here.
             return flask.render_template(
@@ -234,7 +237,7 @@ def editpages(path):
                         path=path,
                         edit='True',
                         page=page,
-                        mark=page.format
+                        mark=mark
                     )
         else:
             return flask.redirect(flask.url_for('newpages', path=path))
