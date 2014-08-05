@@ -190,7 +190,6 @@ def check_group_perm(page):
     if pgroups:
         set1 = set(pgroups)
         set2 = set(flask.g.fas_user.groups)
-        print set1, set2
         if not set1.intersection(set2):
             return False
     return True
