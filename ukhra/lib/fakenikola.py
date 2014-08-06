@@ -41,6 +41,7 @@ class FakeNikola(object):
         self.config = {'DISABLED_PLUGINS': []}
         self.debug = False
         self.loghandlers = []
+        self.timeline = []
         self.plugin_manager = PluginManager(categories_filter={
             "Command": Command,
             "Task": Task,
