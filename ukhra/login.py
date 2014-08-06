@@ -30,6 +30,9 @@ except ImportError:
     # The module was renamed in flask-admin
     from flask.ext.admin.contrib.sqlamodel import ModelView
 from sqlalchemy.exc import SQLAlchemyError
+from redis import Redis
+redis = Redis()
+
 
 import ukhra.forms
 import ukhra.lib
@@ -79,7 +82,9 @@ def new_user():
             APP.logger.exception(err)
 
         SESSION.commit()
-
+        # Now let us update the redis.
+        redis.hset('userids', user.id, user.user_name)
+        
         return flask.redirect(flask.url_for('auth_login'))
 
     return flask.render_template(
