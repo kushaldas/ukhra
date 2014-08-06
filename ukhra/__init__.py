@@ -140,6 +140,7 @@ def index():
 @APP.route('/page/<path:path>')
 def pages(path):
     'Displays a particular page or opens the editor for a new page.'
+    path = path.lower()
     edit = False
     page = mmlib.find_page(path)
     if is_authenticated() and page:
@@ -161,6 +162,7 @@ def pages(path):
 @login_required
 def newpages(path):
     'Displays a particular page or opens the editor for a new page.'
+    path = path.lower()
     form = forms.NewPageForm()
     if form.validate_on_submit():
         # Now we have proper data, let us save the form.
@@ -201,6 +203,7 @@ def check_group_perm(page):
 @login_required
 def editpages(path):
     'Displays a particular page or opens the editor for a new page.'
+    path = path.lower()
     form = forms.NewPageForm()
     page = mmlib.find_page(path)
     if not page: # WHen the page is missing
@@ -244,6 +247,7 @@ def editpages(path):
 @APP.route('/page/<path:path>/history', methods=['POST','GET'])
 @login_required
 def historypages(path):
+    path = path.lower()
     page = mmlib.find_page(path)
     if not page: # WHen the page is missing
         return flask.redirect(flask.url_for('newpages', path=path))
