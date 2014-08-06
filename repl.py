@@ -45,12 +45,41 @@ class REPL(Cmd):
         mmlib.load_all(SESSION)
 
     def do_addgroup(self, line):
+        'Adds a group to the db'
+        line = line.strip()
+        if not line:
+            return
+        line = line.lower()
+        group = model.Group(group_name=line,display_name=line)
+        SESSION.add(group)
+        SESSION.commit()
+        print "Group %s added to the DB." % line
+
+    def do_listgroups(self, line):
+        query = SESSION.query(model.Group)
+        for row in query:
+            print row.group_name,
+            print row.users
+
+    def do_path2group(self, line):
         'path and then comma separated group names (without space)'
         line = line.strip()
         path, groups = line.split(' ')
         if path and groups:
             mmlib.update_page_group(SESSION, path, groups)
         print "Done."
+
+    def do_user2group(self, line):
+        'user name and then the group name, one at a time.'
+        line = line.strip()
+        uname, gname = line.split(' ')
+        user = SESSION.query(model.User).filter(model.User.user_name == uname).first()
+        group = SESSION.query(model.Group).filter(model.Group.group_name == gname).first()
+        ugbase = model.UserGroup(user_id=user.id, group_id=group.id)
+        SESSION.add(ugbase)
+        SESSION.commit()
+        print "User: %s is added to %s" % (uname, gname)
+
 
 
 
