@@ -31,6 +31,9 @@ from pprint import pprint
 from collections import OrderedDict
 from retask.queue import Queue
 from retask.task import Task
+import logging
+logger = logging.getLogger(__name__)
+
 
 from redis import Redis
 redis = Redis()
@@ -260,7 +263,7 @@ def update_page(session, form, path, user_id):
     page = session.query(model.Page).filter(model.Page.id==form.page_id.data).first()
     if not page:
         return False
-    if page.title == form.title.data and page.data == form.rawtext.data: # No chance in the page.
+    if page.title == form.title.data and page.data == form.rawtext.data and page.format == form.format.data: # No chance in the page.
         return True
     page.title = form.title.data
     page.data = form.rawtext.data
@@ -273,6 +276,7 @@ def update_page(session, form, path, user_id):
         session.commit()
     except Exception, err:
         session.rollback()
+        logger.error(err)
         return False
     update_page_redis(page, path, user_id)
     rev = model.Revision(page_id=form.page_id.data)
@@ -285,8 +289,9 @@ def update_page(session, form, path, user_id):
     try:
         session.add(rev)
         session.commit()
-    except:
+    except Exception, err:
         session.rollback()
+        logger.error(err)
         return False
 
     return True
