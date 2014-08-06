@@ -66,7 +66,10 @@
                     {% if g.fas_user %}<li><a href="{{ url_for('auth_logout') }}">Logout</a>{% else %}<a href="{{ url_for('auth_login') }}">Login</a></li>
 
                     {% endif %}
-                    {% if editpage %}<li><a href="{{ url_for('editpages', path=path) }}">Edit Page</a></li> {% endif %}
+                    {% if editpage %}
+                    <li><a href="{{ url_for('editpages', path=path) }}">Edit Page</a></li>
+                    <li><a href="{{ url_for('historypages', path=path) }}">History</a></li>
+                    {% endif %}
                 </ul>
             </div>
             {% block content %}{% endblock %}

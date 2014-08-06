@@ -241,7 +241,25 @@ def editpages(path):
                     )
 
 
-
+@APP.route('/page/<path:path>/history', methods=['POST','GET'])
+@login_required
+def historypages(path):
+    page = mmlib.find_page(path)
+    if not page: # WHen the page is missing
+        return flask.redirect(flask.url_for('newpages', path=path))
+    # Now see if the user has access rights for this page groups.
+    if not check_group_perm(page):
+        return flask.render_template(
+                'noperm.html')
+    if request.method == 'GET':
+        history = mmlib.get_page_revisions(SESSION, path)
+        return flask.render_template(
+                        'history.html',
+                        path=path,
+                        edit='True',
+                        page=page,
+                        history=history
+                    )
 
 
 

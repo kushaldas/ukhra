@@ -24,7 +24,7 @@
             	    	</div>
                         <div class="form-group">
                             <label for="why">Summary</label>
-                            <input id="why" name="why" type="text" value="" class="form-control">
+                            <input id="why" name="why" type="text" value="" class="form-control" required>
                         </div>
             	    	{{ form.csrf_token }}
             	    	 <p><button type="submit" class="btn btn-success btn-lg">Submit</button><a class="btn btn-danger btn-lg" href="{{ url_for('pages', path=path) }}" role="button">Cancel</a></p>

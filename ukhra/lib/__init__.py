@@ -176,12 +176,21 @@ def load_all(session):
             format = '0'
         else:
             format = '1'
+        g = []
+        try:
+            g = page.groups
+        except:
+            pass # we do not care for now.
         rpage = {'title': page.title, 'rawtext':page.data, 'html': compile_text(page.data, format), 'page_id': page.id,
             'writer': page.writer, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'),
-            'path': page.path, 'groups': page.groups}
+            'path': page.path, 'groups': g}
         redis.set('page:%s' % page.path, json.dumps(rpage))
         redis.lpush('latestpages', page.path)
     print "All pages loaded in redis."
+    query = session.query(model.User)
+    for user in query:
+        redis.hset('userids', user.id, user.user_name)
+    print "Users loaded."
 
 
 def compile_text(text, format='0'):
@@ -230,17 +239,17 @@ def save_page(session, form, path, user_id):
         return False
     # We have it in database
     # now let us fill in the redis.
-    update_page_redis(page, path, user_id)
+    update_page_redis(page, path, user_id, form.why.data)
     return True
 
-def update_page_redis(page, path, user_id):
+def update_page_redis(page, path, user_id, why=''):
     '''Updates the page in redis.
 
     :param page: model.Page object
     :return: None
     '''
     rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id, 'format': unicode(page.format),
-            'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path, 'groups': []}
+            'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path, 'groups': [], 'why': why}
     redis.set('page:%s' % path, json.dumps(rpage))
     mail_update(rpage)
 
@@ -278,7 +287,7 @@ def update_page(session, form, path, user_id):
         session.rollback()
         logger.error(err)
         return False
-    update_page_redis(page, path, user_id)
+    update_page_redis(page, path, user_id, form.why.data)
     rev = model.Revision(page_id=form.page_id.data)
     rev.title = form.title.data
     rev.rawtext = form.rawtext.data
@@ -347,3 +356,17 @@ def update_page_group(session, path, groups):
     rpage = json.loads(redis.get('page:%s' % path))
     rpage['groups'] = gnames
     redis.set('page:%s' % path, json.dumps(rpage))
+
+
+def get_page_revisions(session, path):
+    page = find_page(path)
+    revs = session.query(model.Revision).filter(model.Revision.page_id==page['page_id']).order_by(model.Revision.revision_number.desc())
+    result = []
+    for rev in revs:
+        user = redis.hget('userids', rev.writer)
+        data = {'revision': rev.revision_number, 'title': rev.title, 'id': rev.id, 'created': rev.created,
+                'writer': user, 'why': rev.why}
+        print rev.writer
+        result.append(data)
+    return result
+
