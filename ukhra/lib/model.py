@@ -127,7 +127,18 @@ class Page(BASE):
     version = sa.Column(sa.INTEGER, nullable=False)
     writer = sa.Column(
         sa.Integer, sa.ForeignKey('mm_user.id'), nullable=False)
-    tags = sa.orm.relationship("Tag", backref="page")
+    tag_objs = relation(
+        "Tag",
+        secondary="page_tag",
+        primaryjoin="page.c.id==page_tag.c.page_id",
+        secondaryjoin="tag.c.id==page_tag.c.tag_id",
+        backref="tags",
+    )
+
+    @property
+    def tags(self):
+        ''' Return the list of Group.group_name in which the user is. '''
+        return [(tag.name, tag.id) for tag in self.tag_objs]
 
     def __repr__(self):
         ''' Return a string representation of the object. '''
@@ -140,12 +151,31 @@ class Tag(BASE):
 
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String(255), nullable=False, unique=True)
-    page_id = sa.Column(
-        sa.Integer, sa.ForeignKey('page.id'), nullable=False)
 
     def __repr__(self):
         ''' Return a string representation of the object. '''
         return u'<Tag(%s - %s)>' % (self.id, self.name)
+
+
+class PageTags(BASE):
+    """
+    Association table linking the page table to the tag table.
+    This allow linking pages to tags.
+    """
+
+    __tablename__ = 'page_tag'
+
+    page_id = sa.Column(
+        sa.Integer, sa.ForeignKey('page.id'), primary_key=True)
+    tag_id = sa.Column(
+        sa.Integer, sa.ForeignKey('tag.id'), primary_key=True)
+
+    # Constraints
+    __table_args__ = (
+        sa.UniqueConstraint(
+            'page_id', 'tag_id'),
+    )
+
 
 
 class Revision(BASE):

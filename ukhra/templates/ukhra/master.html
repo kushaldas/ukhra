@@ -42,6 +42,7 @@
                     </ul>
                 </div>
             </div>
+
         </div>
     </header>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -71,6 +72,7 @@
                     <li><a href="{{ url_for('historypages', path=path) }}">History</a></li>
                     {% endif %}
                 </ul>
+                {% block pagetags %}{% endblock %}
             </div>
             {% block content %}{% endblock %}
         </div> <!-- End of row -->

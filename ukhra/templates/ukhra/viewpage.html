@@ -3,6 +3,13 @@
 {% block title %}{{ page['title'] }}{% endblock %}
 {%block tag %}home{% endblock %}
 {%block header%}{% endblock %}
+{% block pagetags %}
+            <div>
+              {% for t in page['tags']%}
+              <button type="button" class="btn btn-primary">{{ t[0] }}</button>
+              {% endfor %}  
+            </div>
+{% endblock %}
 
 {% block content %}
 

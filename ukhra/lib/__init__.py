@@ -181,9 +181,10 @@ def load_all(session):
             g = page.groups
         except:
             pass # we do not care for now.
+
         rpage = {'title': page.title, 'rawtext':page.data, 'html': compile_text(page.data, format), 'page_id': page.id,
             'writer': page.writer, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'),
-            'path': page.path, 'groups': g}
+            'path': page.path, 'groups': g, 'tags': page.tags}
         redis.set('page:%s' % page.path, json.dumps(rpage))
         redis.lpush('latestpages', page.path)
     print "All pages loaded in redis."
@@ -237,19 +238,35 @@ def save_page(session, form, path, user_id):
     except Exception, err:
         session.rollback()
         return False
+
+    tags = []
+    for tagname in form.tags.data.split(','):
+        tagname = tagname.strip()
+        t = session.query(model.Tag).filter(model.Tag.name == tagname).first()
+        if not t: # If the tag is not in db then first save it.
+            t = model.Tag(name=tagname)
+            session.add(t)
+            session.commit()
+        # Now add the relation.
+        pt = model.PageTags(page_id=page.id, tag_id=t.id)
+        session.add(pt)
+        session.commit()
+        tags.append((t.name, t.id))
+
     # We have it in database
     # now let us fill in the redis.
-    update_page_redis(page, path, user_id, form.why.data)
+    update_page_redis(page, path, user_id, form.why.data, tags)
     return True
 
-def update_page_redis(page, path, user_id, why=''):
+def update_page_redis(page, path, user_id, why, tags):
     '''Updates the page in redis.
 
     :param page: model.Page object
     :return: None
     '''
     rpage = {'title': page.title, 'rawtext':page.data, 'html': page.html, 'page_id': page.id, 'format': unicode(page.format),
-            'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path, 'groups': [], 'why': why}
+            'writer': user_id, 'updated' : page.updated.strftime('%Y-%m-%d %H:%M'), 'path': path, 'groups': [],
+            'why': why, 'tags': tags}
     redis.set('page:%s' % path, json.dumps(rpage))
     mail_update(rpage)
 
@@ -268,11 +285,39 @@ def update_page(session, form, path, user_id):
     html = u''
     now = datetime.now()
 
+    rpage = find_page(path)
     # First let us update the page.
     page = session.query(model.Page).filter(model.Page.id==form.page_id.data).first()
     if not page:
         return False
-    if page.title == form.title.data and page.data == form.rawtext.data and page.format == form.format.data: # No chance in the page.
+
+    tags = []
+    tag_nochange = True # To mark that tags changed.
+    for tagname in form.tags.data.split(','):
+        tagname = tagname.strip()
+        if tagname.startswith('#'): #If tagname starts with # then remove it.
+            tag_nochange = False
+            t = session.query(model.Tag).filter(model.Tag.name == tagname[1:]).first()
+            pt = session.query(model.PageTags).filter(model.PageTags.page_id==page.id, model.PageTags.tag_id==t.id).first()
+            session.delete(pt)
+            session.commit()
+            continue
+
+        t = session.query(model.Tag).filter(model.Tag.name == tagname).first()
+        if not t: # If the tag is not in db then first save it.
+            t = model.Tag(name=tagname)
+            session.add(t)
+            session.commit()
+        # Now add the relation if missing.
+        pt = session.query(model.PageTags).filter(model.PageTags.page_id==page.id, model.PageTags.tag_id==t.id).first()
+        if not pt:
+            pt = model.PageTags(page_id=page.id, tag_id=t.id)
+            session.add(pt)
+            session.commit()
+        tags.append((t.name, t.id))
+
+
+    if page.title == form.title.data and page.data == form.rawtext.data and page.format == form.format.data and tag_nochange: # No chance in the page.
         return True
     page.title = form.title.data
     page.data = form.rawtext.data
@@ -287,7 +332,7 @@ def update_page(session, form, path, user_id):
         session.rollback()
         logger.error(err)
         return False
-    update_page_redis(page, path, user_id, form.why.data)
+    update_page_redis(page, path, user_id, form.why.data, tags)
     rev = model.Revision(page_id=form.page_id.data)
     rev.title = form.title.data
     rev.rawtext = form.rawtext.data

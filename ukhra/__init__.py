@@ -216,7 +216,7 @@ def editpages(path):
     mark = True
     if page.get('format', u'0') == u'1':
         mark = False
-
+    tagline = ','.join([t[0] for t in page['tags']])
     if request.method == 'GET':
         # We should showcase the editor here.
         return flask.render_template(
@@ -225,7 +225,8 @@ def editpages(path):
                         path=path,
                         edit='True',
                         page=page,
-                        mark=mark
+                        mark=mark,
+                        tagline=tagline
                     )
     if form.validate_on_submit():
         # Now we have proper data, let us save the form.
@@ -240,7 +241,8 @@ def editpages(path):
                         path=path,
                         edit='True',
                         page=page,
-                        mark=mark
+                        mark=mark,
+                        tagline=tagline
                     )
 
 
