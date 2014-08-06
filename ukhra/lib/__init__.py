@@ -366,7 +366,6 @@ def get_page_revisions(session, path):
         user = redis.hget('userids', rev.writer)
         data = {'revision': rev.revision_number, 'title': rev.title, 'id': rev.id, 'created': rev.created,
                 'writer': user, 'why': rev.why}
-        print rev.writer
         result.append(data)
     return result
 
