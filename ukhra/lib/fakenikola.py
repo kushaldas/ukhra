@@ -82,6 +82,9 @@ class RSTCompiler(object):
 
     def __init__(self):
         self.f = FakeNikola()
+        self.spath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.txt')
+        if not os.path.exists(self.spath):
+            self.spath = '/usr/lib/python2.6/site-packages/nikola/plugins/compile/rest/template.txt'
 
     def rst(self, source):
         output, error_level, deps = rst2html(
@@ -92,6 +95,6 @@ class RSTCompiler(object):
                             'link_stylesheet': True,
                             'syntax_highlight': 'short',
                             'math_output': 'mathjax',
-                            'template': '/usr/lib/python2.6/site-packages/nikola/plugins/compile/rest/template.txt',
+                            'template': self.spath,
                         }, l_source=source, logger=logger)
         return output, error_level
