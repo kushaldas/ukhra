@@ -211,7 +211,7 @@ def editpages(path):
                 'noperm.html')
     # Markdown or RST ?
     mark = True
-    if page['format'] == u'1':
+    if page.get('format', u'0') == u'1':
         mark = False
 
     if request.method == 'GET':
