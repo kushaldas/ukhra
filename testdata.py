@@ -30,7 +30,11 @@ ugbase = model.UserGroup(user_id=user.id, group_id=group.id)
 SESSION.add(ugbase)
 SESSION.commit()
 
-
+password = 'asdf%s' % APP.config.get('PASSWORD_SEED', None)
+password = hashlib.sha512(password).hexdigest()
+user = model.User(user_name='bdas',email_address='kushal@fedoraproject.org',display_name='Kushal Das', password=password)
+SESSION.add(user)
+SESSION.commit()
 
 helptext = u'''Welcome to the new wiki system of dgplug.
 
@@ -40,14 +44,21 @@ helptext = u'''Welcome to the new wiki system of dgplug.
 Just type in the URL, if the pages does not exist then it will ask you to start a new one.
 Remember to add some summary to each change.
 
+Example URL: '/page/MyNewPage'
+
 
 
 ### Tags are not showing!!!
 
+Yes, we are yet to add that feature.
 
-Yes, we are yet to add that feature. '''
+###  What format do you support?
 
-page = model.Page(data=helptext, created=datetime.now(), updated=datetime.now(), path='help', writer=1, version=0)
+We support two of the best developer friendly formats, [markdown](http://daringfireball.net/projects/markdown/syntax) is default choice or else you can use [reStructuredText](http://getnikola.com/quickstart.html).
+
+reST support was added with help from [Nikola](http://getnikola.com/) project.  Yes, we support the [extensions](http://getnikola.com/handbook.html#restructuredtext-extensions) provided by Nikola.'''
+
+page = model.Page(title='Help page', data=helptext, created=datetime.now(), updated=datetime.now(), path='help', writer=1, version=0, format=0)
 
 SESSION.add(page)
 SESSION.commit()
