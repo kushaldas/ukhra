@@ -203,35 +203,20 @@ def editpages(path):
     'Displays a particular page or opens the editor for a new page.'
     form = forms.NewPageForm()
     page = mmlib.find_page(path)
+    if not page: # WHen the page is missing
+        return flask.redirect(flask.url_for('newpages', path=path))
     # Now see if the user has access rights for this page groups.
     if not check_group_perm(page):
         return flask.render_template(
                 'noperm.html')
+    # Markdown or RST ?
+    mark = True
+    if page['format'] == u'1':
+        mark = False
 
     if request.method == 'GET':
-
-        if page:
-            # We should showcase the editor here.
-            return flask.render_template(
-                        'newpage.html',
-                        form=form,
-                        path=path,
-                        edit='True',
-                        page=page
-                    )
-    if form.validate_on_submit():
-        # Now we have proper data, let us save the form.
-        result = mmlib.update_page(SESSION, form, path, flask.g.fas_user.id)
-        if result:
-            return flask.redirect(flask.url_for('pages', path=path))
-    else:
-        page = mmlib.find_page(path)
-        mark = True
-        if page.format == u'1':
-            mark = False
-        if page:
-            # We should showcase the editor here.
-            return flask.render_template(
+        # We should showcase the editor here.
+        return flask.render_template(
                         'newpage.html',
                         form=form,
                         path=path,
@@ -239,8 +224,21 @@ def editpages(path):
                         page=page,
                         mark=mark
                     )
-        else:
-            return flask.redirect(flask.url_for('newpages', path=path))
+    if form.validate_on_submit():
+        # Now we have proper data, let us save the form.
+        result = mmlib.update_page(SESSION, form, path, flask.g.fas_user.id)
+        if result:
+            return flask.redirect(flask.url_for('pages', path=path))
+
+    # We should showcase the editor here.
+    return flask.render_template(
+                        'newpage.html',
+                        form=form,
+                        path=path,
+                        edit='True',
+                        page=page,
+                        mark=mark
+                    )
 
 
 
