@@ -225,6 +225,15 @@ class Group(BASE):
     created = sa.Column(
         sa.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
+        # Relations
+    group_objs = relation(
+        "User",
+        secondary="mm_user_group",
+        primaryjoin="mm_user.c.id==mm_user_group.c.user_id",
+        secondaryjoin="mm_group.c.id==mm_user_group.c.group_id",
+        backref="groups",
+    )
+
     def __repr__(self):
         ''' Return a string representation of this object. '''
 
