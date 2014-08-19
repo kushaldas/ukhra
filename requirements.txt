@@ -9,3 +9,4 @@ retask
 markdown
 requests
 Nikola
+redis
