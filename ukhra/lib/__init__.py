@@ -240,18 +240,20 @@ def save_page(session, form, path, user_id):
         return False
 
     tags = []
-    for tagname in form.tags.data.split(','):
-        tagname = tagname.strip()
-        t = session.query(model.Tag).filter(model.Tag.name == tagname).first()
-        if not t: # If the tag is not in db then first save it.
-            t = model.Tag(name=tagname)
-            session.add(t)
+    tagline = form.tags.data.strip()
+    if tagline:
+        for tagname in tagline.split(','):
+            tagname = tagname.strip()
+            t = session.query(model.Tag).filter(model.Tag.name == tagname).first()
+            if not t: # If the tag is not in db then first save it.
+                t = model.Tag(name=tagname)
+                session.add(t)
+                session.commit()
+            # Now add the relation.
+            pt = model.PageTags(page_id=page.id, tag_id=t.id)
+            session.add(pt)
             session.commit()
-        # Now add the relation.
-        pt = model.PageTags(page_id=page.id, tag_id=t.id)
-        session.add(pt)
-        session.commit()
-        tags.append((t.name, t.id))
+            tags.append((t.name, t.id))
 
     # We have it in database
     # now let us fill in the redis.
