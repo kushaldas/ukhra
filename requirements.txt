@@ -8,5 +8,4 @@ SQLAlchemy>=0.7
 retask
 markdown
 requests
-Nikola
 redis
