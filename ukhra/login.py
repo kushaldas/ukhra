@@ -44,6 +44,7 @@ from ukhra.lib import model
 def new_user():
     """ Create a new user.
     """
+    return "Contact #dgplug on IRC for a new account."
     form = ukhra.forms.NewUserForm()
     if form.validate_on_submit():
 

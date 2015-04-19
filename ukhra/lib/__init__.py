@@ -52,9 +52,9 @@ from ukhra.lib import model
 from ukhra.lib import notifications
 from ukhra import default_config
 import markdown
-from fakenikola import RSTCompiler
+#from fakenikola import RSTCompiler
 
-COMPILER = RSTCompiler()
+#COMPILER = RSTCompiler()
 
 
 
