@@ -14,7 +14,6 @@
             	    		<input id="title" name="title" type="text" value="{{ page['title'] }}" class="form-control">
             	    	</div>
                         <label class="checkbox-inline"><input id="format-0" name="format" type="radio" value="0" {% if mark %}checked{% endif %}>Markdown</label>
-                        <label class="checkbox-inline"><input id="format-1" name="format" type="radio" value="1" {% if not mark %}checked{% endif %}>RST</label>
               	    	<div class="form-group">
             	    		<textarea id="rawtext" name="rawtext" class="form-control" rows="30" style="font-family: monospace;">{{ page['rawtext'] }}</textarea>
             	    	</div>
