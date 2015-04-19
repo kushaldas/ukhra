@@ -65,9 +65,9 @@ APP.static_folder = os.path.join(
 # Send emails for big exception
 MAIL_HANDLER = logging.handlers.SMTPHandler(
     APP.config.get('SMTP_SERVER', '127.0.0.1'),
-    'nobody@fedoraproject.org',
-    APP.config.get('MAIL_ADMIN', 'noreply@fedoraproject.org'),
-    'MirrorManager2 error')
+    'kushaldas@gmail.com',
+    APP.config.get('MAIL_ADMIN', 'kushaldas@gmail.com'),
+    'Ukhra error')
 MAIL_HANDLER.setFormatter(logging.Formatter('''
     Message type:       %(levelname)s
     Location:           %(pathname)s:%(lineno)d
